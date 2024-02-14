@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { ethers } from "ethers";
-import ErrorMessage from "./ErrorMessage";
 import TransactionsList from './components/TransactionList';
 import TxList from "./TxList";
 
-const startPayment = async ({ setError, setTxs, ether, addr, senderAddr }) => {
+const startPayment = async ({ setError, setTxs, ether, addr, senderAddr, privateKey }) => { // Include privateKey in the parameters
   try {
     if (!window.ethereum) throw new Error("No crypto wallet found. Please install it.");
     ethers.utils.getAddress(addr);
@@ -13,6 +12,7 @@ const startPayment = async ({ setError, setTxs, ether, addr, senderAddr }) => {
       addressFrom: senderAddr,
       addressTo: addr,
       amount: parseFloat(ether),
+      privateKey, // Include privateKey in the transaction data
     };
 
     console.log(transactionData);
@@ -44,6 +44,7 @@ export default function App() {
   const [senderAddr, setSenderAddr] = useState('');
   const [recipientAddr, setRecipientAddr] = useState('');
   const [amount, setAmount] = useState('');
+  const [privateKey, setPrivateKey] = useState(''); // State for privateKey
 
   const handleFetchCurrentAccount = async () => {
     if (!window.ethereum) {
@@ -61,7 +62,8 @@ export default function App() {
       setTxs,
       ether: amount,
       addr: recipientAddr,
-      senderAddr
+      senderAddr,
+      privateKey // Pass privateKey to your payment handler
     });
   };
 
@@ -83,6 +85,15 @@ export default function App() {
             <button onClick={handleFetchCurrentAccount} className="btn btn-secondary ml-2">
               Fetch Current Account
             </button>
+          </div>
+          <div className="my-3">
+            <input
+              type="password" // Use password type for security
+              value={privateKey}
+              onChange={e => setPrivateKey(e.target.value)}
+              className="input input-bordered block w-full focus:ring focus:outline-none"
+              placeholder="Private Key"
+            />
           </div>
           <div className="my-3">
             <input
